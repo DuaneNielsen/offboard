@@ -7,5 +7,5 @@
     <arg name="fcu_url" value="$(arg fcu_url)" />
   </include>
   <!-- Our node to control the drone -->
-  <node pkg="offboard_py" type="offb_node.py" name="offb_node" required="true" output="screen" />
+  <node pkg="offboard" type="offb_node.py" name="offboard" required="true" output="screen" />
 </launch>
