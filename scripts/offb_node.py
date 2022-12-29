@@ -4,9 +4,11 @@
  * Stack and tested in Gazebo 9 SITL
 """
 
+from conefinder import init, find, exit
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest
+import argparse
 
 import threading
 import time
@@ -296,6 +298,17 @@ if __name__ == "__main__":
 
     ctrl = UAV_Control()
 
+    # init zed camera and detector thread
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640],
+                        help='the image size the yolo was trained at')
+    parser.add_argument('--engine', type=str, default=str(Path.home()/'yolov7.engine'), help='youlv7.engine path(s)')
+    parser.add_argument('--svo', type=str, default=None, help='optional svo file')
+    parser.add_argument('--conf_thres', type=float, default=0.4, help='object confidence threshold')
+    args = parser.parse_args()
+
+    zed, init_params, obj_param, runtime_params, obj_runtime_param = init(opt)
+
     # Setpoint publishing MUST be faster than 2Hz
     rate = rospy.Rate(20)
     i = 0
@@ -350,6 +363,7 @@ if __name__ == "__main__":
         # local_pos_pub.publish(pose)
 
         from math import floor, sin, pi
+        best_track = find(zed, runtime_params, obj_runtime_param)
 
         ctrl.set_servo(floor(1200 + sin(pi * (i % 300) / 300) * 500))
 
