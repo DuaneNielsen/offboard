@@ -4,7 +4,7 @@
  * Stack and tested in Gazebo 9 SITL
 """
 
-from conefinder import init, find, exit
+from conefinder.conefinder import init, find, exit_finder
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest
