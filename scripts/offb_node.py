@@ -389,7 +389,8 @@ if __name__ == "__main__":
 
         from math import floor, sin, pi
         best_track = find(zed, runtime_params, obj_runtime_param)
-        rospy.loginfo( f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
+        if best_track is not None:
+            rospy.loginfo( f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
         ctrl.set_servo(floor(1200 + sin(pi * (i % 300) / 300) * 500))
 
