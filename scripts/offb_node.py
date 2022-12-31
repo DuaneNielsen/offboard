@@ -310,7 +310,7 @@ if __name__ == "__main__":
     rospy.loginfo(f'offboard arggs: {sys.argv}')
     args = parser.parse_args(sys.argv[4:])
 
-    zed, init_params, obj_param, runtime_params, obj_runtime_param = init(opt)
+    zed, init_params, obj_param, runtime_params, obj_runtime_param = init(args)
 
     # Setpoint publishing MUST be faster than 2Hz
     rate = rospy.Rate(20)
