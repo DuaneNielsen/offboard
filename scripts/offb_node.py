@@ -52,7 +52,7 @@ SERVO_MIN = 1200
 SERVO_MAX = 1800
 SERVO_RANGE = int((SERVO_MAX - SERVO_MIN) / 2)
 SERVO_CENTER = SERVO_RANGE + SERVO_MIN
-SERvO_P = 2.0
+SERVO_P = 2.0
 
 def get_servo_pwm(pos):
     pos = min(1.0, pos)
