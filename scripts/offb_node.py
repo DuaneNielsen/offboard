@@ -403,7 +403,7 @@ if __name__ == "__main__":
         if best_track is not None:
             rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
-            pos = best.position[0] * SERVO_P
+            pos = best_track.position[0] * SERVO_P
             ctrl.set_servo(get_servo_pwm(pos))
 
         i += 1
