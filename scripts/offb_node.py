@@ -13,6 +13,7 @@ from pathlib import Path
 import threading
 import time
 import sys
+import traceback
 
 # ROS
 import rospy
@@ -377,34 +378,40 @@ if __name__ == "__main__":
     last_req = rospy.Time.now()
 
     while (not rospy.is_shutdown()):
-        if (current_state.mode != "MANUAL" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-            print('setting mode')
-            print(f'mode: {current_state.mode}')
-            print(f'armed: {current_state.armed}')
-            if (set_mode_client.call(offb_set_mode).mode_sent == True):
-                rospy.loginfo("MANUAL enabled")
 
-            last_req = rospy.Time.now()
-        else:
-            if (not current_state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
-                print('arming')
+        try:
+            if (current_state.mode != "MANUAL" and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+                print('setting mode')
                 print(f'mode: {current_state.mode}')
                 print(f'armed: {current_state.armed}')
-                if (arming_client.call(arm_cmd).success == True):
-                    rospy.loginfo("Vehicle armed")
-                    print('Vehicle armed')
+                if (set_mode_client.call(offb_set_mode).mode_sent == True):
+                    rospy.loginfo("MANUAL enabled")
 
                 last_req = rospy.Time.now()
-        # print(pose)
-        # local_pos_pub.publish(pose)
+            else:
+                if (not current_state.armed and (rospy.Time.now() - last_req) > rospy.Duration(5.0)):
+                    print('arming')
+                    print(f'mode: {current_state.mode}')
+                    print(f'armed: {current_state.armed}')
+                    if (arming_client.call(arm_cmd).success == True):
+                        rospy.loginfo("Vehicle armed")
+                        print('Vehicle armed')
 
-        from math import floor, sin, pi
-        best_track = find(zed, runtime_params, obj_runtime_param)
-        if best_track is not None:
-            rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
+                    last_req = rospy.Time.now()
+            # print(pose)
+            # local_pos_pub.publish(pose)
 
-            pos = best_track.position[0] * SERVO_P
-            ctrl.set_servo(get_servo_pwm(pos))
+            from math import floor, sin, pi
+            best_track = find(zed, runtime_params, obj_runtime_param)
+            if best_track is not None:
+                rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
-        i += 1
-        rate.sleep()
+                pos = best_track.position[0] * SERVO_P
+                ctrl.set_servo(get_servo_pwm(pos))
+
+            i += 1
+            rate.sleep()
+        except Exception as e:
+            rospy.logerr(e)
+            rospy.logerr(traceback.format_exc())
+
