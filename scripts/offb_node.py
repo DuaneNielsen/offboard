@@ -48,6 +48,17 @@ STEER_CHANNEL = 0
 
 EXEC_TIME = 1  # exc time in secs
 
+SERVO_MIN = 1200
+SERVO_MAX = 1800
+SERVO_RANGE = int((SERVO_MAX - SERVO_MIN) / 2)
+SERVO_CENTER = SERVO_RANGE + SERVO_MIN
+SERvO_P = 2.0
+
+def get_servo_pwm(pos):
+    pos = min(1.0, pos)
+    pos = max(-1.0, pos)
+    return int(SERVO_RANGE * pos + SERVO_CENTER)
+
 
 class UAV_Control:
     """UAV WP and Manual Control"""
@@ -390,9 +401,11 @@ if __name__ == "__main__":
         from math import floor, sin, pi
         best_track = find(zed, runtime_params, obj_runtime_param)
         if best_track is not None:
-            rospy.loginfo( f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
+            rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
-        ctrl.set_servo(floor(1200 + sin(pi * (i % 300) / 300) * 500))
+            cntrl.set_servo()
+            pos = best.position[0] * SERVO_P
+            ctrl.set_servo(get_servo_pwm(pos))
 
         i += 1
         rate.sleep()
