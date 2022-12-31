@@ -284,6 +284,26 @@ class UAV_Control:
         self._srv_cmd_long(bool1, msgid, bool2, p0, p1, p2, p3, p4, p5, p6)
 
 
+class ROSLogger:
+    def write(self, message):
+        rospy.logdebug(message)
+
+
+def redirect_stdout():
+    # Save a reference to the original stdout
+    original_stdout = sys.stdout
+
+    # Create a new stdout that writes to the ROS logging system
+    sys.stdout = ROSLogger()
+
+    return original_stdout
+
+
+def restore_stdout(original_stdout):
+    # Reset stdout to the original value
+    sys.stdout = original_stdout
+
+
 if __name__ == "__main__":
     rospy.init_node("offb_node_py")
 
@@ -296,6 +316,8 @@ if __name__ == "__main__":
 
     rospy.wait_for_service("/mavros/set_mode")
     set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
+
+    original_stdout = redirect_stdout()
 
     ctrl = UAV_Control()
 
