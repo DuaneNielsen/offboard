@@ -16,6 +16,7 @@ import time
 import sys
 import traceback
 from collections import deque
+import numpy as np
 
 # ROS
 import rospy
