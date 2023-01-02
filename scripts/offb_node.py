@@ -439,7 +439,7 @@ if __name__ == "__main__":
             # local_pos_pub.publish(pose)
 
             from math import floor, sin, pi
-            best_track = find(zed, runtime_params, obj_runtime_param)
+            best_track, objects = find(zed, runtime_params, obj_runtime_param)
             if best_track is not None:
                 rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
@@ -453,7 +453,7 @@ if __name__ == "__main__":
                       + D * rospy.get_param('/SERVO_D')
                 ctrl.set_servo(get_servo_pwm(pos))
 
-            viewer.update([best_track])
+            viewer.update(objects)
 
             i += 1
             rate.sleep()
