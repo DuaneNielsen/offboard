@@ -5,6 +5,7 @@
 """
 
 from conefinder.conefinder import init, find, exit_finder
+import conefinder.cv_viewer.tracking_viewer as cv_viewer
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest
@@ -34,7 +35,7 @@ from mavros_msgs.srv import CommandLong
 # from mavros_msgs.srv import ParamSet, SetMode
 # TODO Missing import from mavros_msgs.srv import WaypointGOTO
 # from mavros.mission import *
-
+import pyzed.sl as sl
 
 current_state = State()
 
@@ -313,6 +314,40 @@ def restore_stdout(original_stdout):
     sys.stdout = original_stdout
 
 
+class CViewer:
+    def __init__(self, obj_param):
+        self.obj_param = obj_param
+        camera_infos = zed.get_camera_information()
+        self.display_resolution = sl.Resolution(min(camera_infos.camera_resolution.width, 1280),
+                                           min(camera_infos.camera_resolution.height, 720))
+        self.image_scale = [display_resolution.width / camera_infos.camera_resolution.width,
+                       display_resolution.height / camera_infos.camera_resolution.height]
+        self.image_left_ocv = np.full((display_resolution.height, display_resolution.width, 4), [245, 239, 239, 255], np.uint8)
+
+        camera_config = zed.get_camera_information().camera_configuration
+        tracks_resolution = sl.Resolution(400, display_resolution.height)
+        self.track_view_generator = cv_viewer.TrackingViewer(tracks_resolution, camera_config.camera_fps,
+                                                        init_params.depth_maximum_distance)
+        self.track_view_generator.set_camera_calibration(camera_config.calibration_parameters)
+        self.image_track_ocv = np.zeros((tracks_resolution.height, tracks_resolution.width, 4), np.uint8)
+        self.cam_w_pose = sl.Pose()
+        self.image_left = sl.Mat()
+
+    def update(self, objects):
+        zed.retrieve_image(self.image_left, sl.VIEW.LEFT, sl.MEM.CPU, self.display_resolution)
+        np.copyto(self.image_left_ocv, self.image_left.get_data())
+        cv_viewer.render_2D(self.image_left_ocv, self.image_scale, objects, self.obj_param.enable_tracking)
+        global_image = cv2.hconcat([self.image_left_ocv, self.image_track_ocv])
+        try:
+            self.track_view_generator.generate_view(objects, self.cam_w_pose, self.image_track_ocv, self.objects.is_tracked)
+        except Exception:
+            return
+        cv2.namedWindow("ZED2i | 2D View and Birds View", cv2.WINDOW_AUTOSIZE)
+        # print('create window')
+        cv2.imshow("ZED2i | 2D View and Birds View", global_image)
+        key = cv2.waitKey(10)
+
+
 if __name__ == "__main__":
     rospy.init_node("offb_node_py")
 
@@ -342,6 +377,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[4:])
 
     zed, init_params, obj_param, runtime_params, obj_runtime_param = init(args)
+    viewer = CViewer(obj_param)
 
     # Setpoint publishing MUST be faster than 2Hz
     rate = rospy.Rate(20)
@@ -415,6 +451,8 @@ if __name__ == "__main__":
                       + max(rospy.get_param('/SERVO_IMAX'), I * rospy.get_param('/SERVO_I')) \
                       + D * rospy.get_param('/SERVO_D')
                 ctrl.set_servo(get_servo_pwm(pos))
+
+            viewer.update([best_track])
 
             i += 1
             rate.sleep()
