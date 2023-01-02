@@ -315,17 +315,17 @@ def restore_stdout(original_stdout):
 
 
 class CViewer:
-    def __init__(self, obj_param):
+    def __init__(self, init_params, obj_param):
         self.obj_param = obj_param
         camera_infos = zed.get_camera_information()
         self.display_resolution = sl.Resolution(min(camera_infos.camera_resolution.width, 1280),
                                            min(camera_infos.camera_resolution.height, 720))
-        self.image_scale = [display_resolution.width / camera_infos.camera_resolution.width,
-                       display_resolution.height / camera_infos.camera_resolution.height]
-        self.image_left_ocv = np.full((display_resolution.height, display_resolution.width, 4), [245, 239, 239, 255], np.uint8)
+        self.image_scale = [self.display_resolution.width / camera_infos.camera_resolution.width,
+                       self.display_resolution.height / camera_infos.camera_resolution.height]
+        self.image_left_ocv = np.full((self.display_resolution.height, self.display_resolution.width, 4), [245, 239, 239, 255], np.uint8)
 
         camera_config = zed.get_camera_information().camera_configuration
-        tracks_resolution = sl.Resolution(400, display_resolution.height)
+        tracks_resolution = sl.Resolution(400, self.display_resolution.height)
         self.track_view_generator = cv_viewer.TrackingViewer(tracks_resolution, camera_config.camera_fps,
                                                         init_params.depth_maximum_distance)
         self.track_view_generator.set_camera_calibration(camera_config.calibration_parameters)
@@ -377,7 +377,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[4:])
 
     zed, init_params, obj_param, runtime_params, obj_runtime_param = init(args)
-    viewer = CViewer(obj_param)
+    viewer = CViewer(init_params, obj_param)
 
     # Setpoint publishing MUST be faster than 2Hz
     rate = rospy.Rate(20)
