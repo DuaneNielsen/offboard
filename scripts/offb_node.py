@@ -14,6 +14,7 @@ import threading
 import time
 import sys
 import traceback
+from collections import deque
 
 # ROS
 import rospy
@@ -373,6 +374,9 @@ if __name__ == "__main__":
 
     last_req = rospy.Time.now()
 
+    # PID queue
+    servo_states = deque(maxlen=rospy.get_param('SERVO_PID_LEN'))
+
     while (not rospy.is_shutdown()):
 
         try:
@@ -402,7 +406,14 @@ if __name__ == "__main__":
             if best_track is not None:
                 rospy.loginfo(f"id: {best_track.id} {best_track.confidence} {best_track.tracking_state} pos: f{best_track.position} vel:{best_track.velocity}")
 
-                pos = best_track.position[0] * rospy.get_param('/SERVO_P')
+                servo_states.appendleft(best_track.position[0])
+                P = servo_states[0]
+                I = sum(servo_states)
+                D = servo_states[1] - servo_states[0] if len(servo_states) > 1 else 0.
+
+                pos = P * rospy.get_param('/SERVO_P') \
+                      + max(rospy.get_param('/SERVO_IMAX'), I * rospy.get_param('/SERVO_I')) \
+                      + D * rospy.get_param('/SERVO_D')
                 ctrl.set_servo(get_servo_pwm(pos))
 
             i += 1
