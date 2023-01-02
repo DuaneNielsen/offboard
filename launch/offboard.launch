@@ -8,8 +8,8 @@
   </include>
   <!-- Our node to control the drone -->
   <!-- SERVO_MAX and SERVO_MIN are used to clip the values -->
-  <param name='/SERVO_MIN' value='1000'>
-  <param name='/SERVO_MAX' value='2000'>
+  <param name='/SERVO_MIN' value='1000'/>
+  <param name='/SERVO_MAX' value='2000'/>
   <param name='/SERVO_CENTER' value='1500'/>
   <param name='/SERVO_RANGE' value='500'/>
   <param name='/SERVO_TRIM' value='0'/>
