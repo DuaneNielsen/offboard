@@ -17,7 +17,7 @@
   <param name='/SERVO_I' value='0.0'/>
   <param name='/SERVO_IMAX' value='0.0'/>
   <param name='/SERVO_D' value='0.0'/>
-  <param name='/SERVO_PID_LEN' value='0.0'/>
+  <param name='/SERVO_PID_LEN' value='5'/>
 
   <node pkg="offboard" type="offb_node.py" name="offboard" required="true" output="screen" />
 </launch>
