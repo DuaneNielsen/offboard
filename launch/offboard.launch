@@ -13,7 +13,7 @@
   <param name='/SERVO_CENTER' value='1500'/>
   <param name='/SERVO_RANGE' value='500'/>
   <param name='/SERVO_TRIM' value='0'/>
-  <param name='/SERVO_P' value='2.0'/>
+  <param name='/SERVO_P' value='1.0'/>
   <param name='/SERVO_I' value='0.0'/>
   <param name='/SERVO_D' value='0.0'/>
 
