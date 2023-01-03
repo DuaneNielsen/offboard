@@ -343,9 +343,11 @@ class CViewer:
         global_image = cv2.hconcat([self.image_left_ocv, self.image_track_ocv])
         try:
             self.track_view_generator.generate_view(objects, self.cam_w_pose, self.image_track_ocv, self.objects.is_tracked)
-        except Exception:
+        except Exception as e:
             rospy.logerr('track view generator failed')
-            return
+            rospy.logerr(e)
+            rospy.logerr(traceback.format_exc())
+
         cv2.namedWindow("ZED2i | 2D View and Birds View", cv2.WINDOW_AUTOSIZE)
         # print('create window')
         cv2.imshow("ZED2i | 2D View and Birds View", global_image)
