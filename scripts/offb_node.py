@@ -351,7 +351,7 @@ class CViewer:
         cv2.namedWindow("ZED2i | 2D View and Birds View", cv2.WINDOW_AUTOSIZE)
         # print('create window')
         cv2.imshow("ZED2i | 2D View and Birds View", global_image)
-        key = cv2.waitKey(0)
+        key = cv2.waitKey(10)
         rospy.logdebug('cv2 updated')
 
 
