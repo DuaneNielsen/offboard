@@ -342,7 +342,7 @@ class CViewer:
         cv_viewer.render_2D(self.image_left_ocv, self.image_scale, objects, self.obj_param.enable_tracking)
         global_image = cv2.hconcat([self.image_left_ocv, self.image_track_ocv])
         try:
-            self.track_view_generator.generate_view(objects, self.cam_w_pose, self.image_track_ocv, self.objects.is_tracked)
+            self.track_view_generator.generate_view(objects, self.cam_w_pose, self.image_track_ocv, objects.is_tracked)
         except Exception as e:
             rospy.logerr('track view generator failed')
             rospy.logerr(e)
