@@ -336,6 +336,7 @@ class CViewer:
         self.image_left = sl.Mat()
 
     def update(self, objects):
+        rospy.logdebug('cv2 updating')
         zed.retrieve_image(self.image_left, sl.VIEW.LEFT, sl.MEM.CPU, self.display_resolution)
         np.copyto(self.image_left_ocv, self.image_left.get_data())
         cv_viewer.render_2D(self.image_left_ocv, self.image_scale, objects, self.obj_param.enable_tracking)
@@ -343,11 +344,13 @@ class CViewer:
         try:
             self.track_view_generator.generate_view(objects, self.cam_w_pose, self.image_track_ocv, self.objects.is_tracked)
         except Exception:
+            rospy.logerr('track view generator failed')
             return
         cv2.namedWindow("ZED2i | 2D View and Birds View", cv2.WINDOW_AUTOSIZE)
         # print('create window')
         cv2.imshow("ZED2i | 2D View and Birds View", global_image)
-        key = cv2.waitKey(10)
+        key = cv2.waitKey(0)
+        rospy.logdebug('cv2 updated')
 
 
 if __name__ == "__main__":
